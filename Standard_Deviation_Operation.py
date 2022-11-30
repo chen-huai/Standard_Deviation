@@ -1,19 +1,5 @@
 # # -*- coding: utf-8 -*-
 
-
-
-
-
-# if __name__ == '__main__':
-#     # x = [927, 952, 977, 995, 915, 962, 966, 950, 969, 949, 961, 940, 1002, 956, 960, 943]
-#     # x = [128, 143, 99.6, 118.2, 130.88, 138.35]
-#     x = [156 , 187 , 206 , 177 , 180 ]
-#     x, x_star, s_star, higher_bound, lower_bound = perform_algorithm_A(x)
-#     print('算法 A 收敛后，数据变为： ', x)
-#     print('稳健平均值： ', x_star)
-#     print('稳健标准差： ', s_star)
-
-
 import sys
 import bin.chicon  # 引用图标
 from PyQt5 import QtCore, QtGui, QtWidgets
@@ -22,7 +8,7 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from Standard_Deviation_Ui import *
-
+from Calculate_Operation import *
 
 class MyMainWindow(QMainWindow, Ui_MainWindow):
     def __init__(self, parent=None):
@@ -30,9 +16,11 @@ class MyMainWindow(QMainWindow, Ui_MainWindow):
         self.setupUi(self)
 
         self.actionExit.triggered.connect(MyMainWindow.close)
-        self.actionHelp.triggered.connect(self.showVersion)
-        self.actionAuthor.triggered.connect(self.showAuthorMessage)
-        # self.pushButton_1.clicked.connect(self.sapOperate)
+        self.actionHelp.triggered.connect(self.show_version)
+        self.actionAuthor.triggered.connect(self.show_author_message)
+        self.pushButton_2.clicked.connect(self.calculate)
+        self.pushButton.clicked.connect(self.lineEdit.clear)
+        self.pushButton.clicked.connect(self.textBrowser.clear)
         # self.checkBox_9.toggled.connect(lambda: self.pdfNameRule('Invoice No'))
 
     # 暂时用不上
@@ -162,16 +150,21 @@ class MyMainWindow(QMainWindow, Ui_MainWindow):
                                 "默认配置文件已经创建好，\n如需修改请在用户桌面查找config文件夹中config_sap.csv，\n将相应的文件内容替换成用户需求即可，修改后记得重新导入配置文件。",
                                 QMessageBox.Yes)
 
-    def showAuthorMessage(self):
+    def show_author_message(self):
         # 关于作者
         QMessageBox.about(self, "关于",
                           "人生苦短，码上行乐。\n\n\n        ----Frank Chen")
 
-    def showVersion(self):
+    def show_version(self):
         # 关于作者
         QMessageBox.about(self, "版本",
-                          "V 22.01.11\n\n\n 2022-04-26")
+                          "V 22.01.01\n\n\n 2022-11-30")
 
+    def get_gui_data(self):
+        gui_data = {}
+        gui_data['Input data'] = self.lineEdit.text().strip()
+        return gui_data
+    
     def location_corresponding(x_str, s_str):
         '''
         s 的第三位有效数字，以及对应 x 的相应的数字
@@ -317,6 +310,21 @@ class MyMainWindow(QMainWindow, Ui_MainWindow):
             delta = 1.5 * s_star
             higher_bound = x_star + delta
             lower_bound = x_star - delta
+
+    def calculate(self):
+        try:
+            gui_data = MyMainWindow.get_gui_data(self)
+            # 转换列表中的元素为float
+            x = list(map(float, gui_data['Input data'].split(" ")))
+            x, x_star, s_star, higher_bound, lower_bound = Calculate_Operation.perform_algorithm_A(x)
+            self.textBrowser.append('输入数据：%s' % gui_data['Input data'])
+            self.textBrowser.append('算法 A 收敛后，数据变为：%s' % x)
+            self.textBrowser.append('稳健平均值：%s' % x_star)
+            self.textBrowser.append('稳健标准差：%s' % s_star)
+            self.textBrowser.append('------------------------------')
+        except Exception as msg:
+            self.textBrowser.append('报错信息：%s' % msg)
+            self.textBrowser.append('------------------------------')
 
 
 
